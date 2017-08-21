@@ -1,0 +1,17 @@
+{
+  "name": "etags",
+  "version": "0.0.1",
+  "description": "investigation",
+  "main": "index.js",
+  "repository": "https://github.com/uliedberg/etags.git",
+  "author": "Ulf Liedberg <ulf@alfhild.io>",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.12",
+    "koa": "^2.3.0",
+    "koa-static": "^4.0.1",
+    "uuid": "^3.1.0"
+  }
+}
