@@ -27,7 +27,6 @@ module.exports = function (logger, opts) {
     ctx.res.once('finish', done);
     ctx.res.once('close', done);
 
-
     return next();
   };
 };

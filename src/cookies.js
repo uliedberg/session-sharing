@@ -6,13 +6,13 @@ module.exports = function(opts = {}) {
   return async (ctx, next) => {
     await next();
     if (!/.*\.child\.com$/.test(ctx.hostname)) {
-      logger.info({ hostname: ctx.hostname }, ' not child.com')
+      logger.info({ hostname: ctx.hostname }, 'not child.com')
       return;
     }
 
     if (ctx.cookies.get(cookieName)) {
       logger.info({ hostname: ctx.hostname, bounce_cookie: ctx.cookies.get(cookieName) },
-                  'cookie set by browser - doing nothing');
+                  'cookie already set in request - doing nothing');
     } else {
       const newCookieValue = uuidv4();
       const cookieOpts = {
@@ -24,7 +24,7 @@ module.exports = function(opts = {}) {
       }
       ctx.cookies.set(cookieName, newCookieValue, cookieOpts);
       logger.info({ hostname: ctx.hostname, bounce_cookie: ctx.cookies.get(cookieName), cookie_opts: cookieOpts },
-                  'cookie-handling: cookie not set by browser  - set cookie');
+                  'cookie not set in request  - setting cookie in response');
     }
   }
 }
