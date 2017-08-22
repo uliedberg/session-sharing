@@ -1,26 +1,30 @@
 const http = require('http');
 const Koa = require('koa');
 const serve = require('koa-static');
+const views = require('koa-views');
 const bunyan = require('bunyan');
 const koaLogger = require('./koalogger.js');
 const uuidv4 = require('uuid/v4');
+const path = require('path');
 
 const app = new Koa();
-const logger = bunyan.createLogger({name: "cookie-bounce"});
+const baseLogger = bunyan.createLogger({name: "cookie-base"});
 
-app.use(koaLogger(logger, { level: 'info' }));
+app.use(koaLogger(bunyan.createLogger({name: "req-res-logger"}), { level: 'info' }));
 
-const COOKIE_NAME = 'bounce'
+const cLogger = bunyan.createLogger({name: "cookie-middleware"});
+const COOKIE_NAME = 'bounce';
 app.use(async (ctx, next) => {
+  const logger = cLogger;
   await next();
   if (!/.*\.child\.com$/.test(ctx.hostname)) {
-    logger.info({ hostname: ctx.hostname }, 'cookie-handling: not child.com')
+    logger.info({ hostname: ctx.hostname }, ' not child.com')
     return;
   }
 
   if (ctx.cookies.get(COOKIE_NAME)) {
-    logger.info({ cookie: { name: COOKIE_NAME, value: ctx.cookies.get(COOKIE_NAME) } },
-                'cookie-handling: cookie set by browser - doing nothing');
+    logger.info({ hostname: ctx.hostname, bounce_cookie: ctx.cookies.get(COOKIE_NAME) },
+                'cookie set by browser - doing nothing');
   } else {
     const newCookieValue = uuidv4();
     const cookieOpts = {
@@ -30,24 +34,33 @@ app.use(async (ctx, next) => {
       httpOnly: true
       // secure: true
     }
-    logger.info({ cookie: { name: COOKIE_NAME, value: ctx.cookies.get(COOKIE_NAME), opts: cookieOpts } },
-                'cookie-handling: cookie not set by browser  - setting');
-    //   maxAge a number representing the milliseconds from Date.now() for expiry
-    // signed sign the cookie value
-    // expires a Date for cookie expiration
-    // path cookie path, /' by default
-    // domain cookie domain
-    // secure secure cookie
-    // httpOnly server-accessible cookie, true by default
-    // overwrite a boolean indicating whether to overwrite previously set cookies of the same name (false by default). If this is true, all cookies set during the same request with the same name (regardless of path or domain) are filtered out of the Set-Cookie header when setting this cookie.
     ctx.cookies.set(COOKIE_NAME, newCookieValue, cookieOpts);
+    logger.info({ hostname: ctx.hostname, bounce_cookie: ctx.cookies.get(COOKIE_NAME), cookie_opts: cookieOpts },
+                'cookie-handling: cookie not set by browser  - set cookie');
   }
 });
 
-app.use(serve('./public'));
+
+const vLogger = bunyan.createLogger({name: "view-middleware"});
+app.use(views(__dirname + '/../views', { map: { html: 'mustache' } }));
+app.use(async (ctx, next) => {
+  const logger = vLogger;
+  logger.info({ hostname: ctx.hostname, path: ctx.path }, 'maybe render');
+  if (!/.*\.child\.com$/.test(ctx.hostname)) {
+    logger.info({ hostname: ctx.hostname }, 'skipping to next middleware');
+    return await next();
+  }
+
+  const po = path.parse(ctx.path);
+  const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\//, '');
+  const locals = { return_url: ctx.query['return-url'] || ctx.request.header.referer };
+  logger.info({ hostname: ctx.hostname, view_path: viewPath, return_url: locals.return_url }, 'will render');
+  await ctx.render(viewPath, locals);
+});
+app.use(serve('./views'));
 
 const server = http.createServer(app.callback());
 
 server.listen(3003, () => {
-  logger.info({ address: server.address() }, 'server started');
+  baseLogger.info({ address: server.address() }, 'server started');
 });

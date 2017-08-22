@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>child - bouncer</title>
+  </head>
+  <body>
+
+    <h1>child - bouncer</h1>
+    <p>
+      user interaction...
+    </p>
+    <ul>
+      <li><a href="{{return_url}}">return to parent</a></li>
+      <li><a href="#" id="close">close context</a></li>
+    </ul>
+
+<script>
+  document.querySelector('#close').addEventListener('click', function (e) {
+    e.preventDefault();
+    window.close();
+  });
+</script>
+
+  </body>
+</html>

@@ -10,8 +10,8 @@ module.exports = function (logger, opts) {
 
   return function (ctx, next) {
     const startTime = new Date().getTime();
-    const referer = { referer: ctx.request.header.referer };
-    logger[defaultLevel](referer, util.format('[REQ] %s %s %s', ctx.method, ctx.host, ctx.url));
+    const logData = { hostname: ctx.hostname, referer: ctx.request.header.referer };
+    logger[defaultLevel](logData, util.format('[REQ] %s %s %s', ctx.method, ctx.host, ctx.url));
 
     const done = function () {
       const requestTime = new Date().getTime() - startTime;
@@ -20,7 +20,7 @@ module.exports = function (logger, opts) {
       if (requestTimeLevel && requestTime > requestTimeLevel) {
         localLevel = 'warn';
       }
-      logger[localLevel](referer, util.format('[RES] %s %s %s (%s) took %s ms',
+      logger[localLevel](logData, util.format('[RES] %s %s %s (%s) took %s ms',
                          ctx.method, ctx.host, ctx.originalUrl, ctx.status, requestTime));
     };
 
