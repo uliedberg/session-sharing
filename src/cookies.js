@@ -5,7 +5,7 @@ const logger = bunyan.createLogger({name: "cookie-util"});
 
 module.exports = {
   setUuid: function (ctx, cookieName, domain, opts = {}) {
-    const newCookieValue = uuidv4();
+    const cookieValue = ctx.cookies.get(cookieName) || uuidv4();
     const cookieOpts = {
       domain: domain,
       maxAge: 1000*60*60*24 * 365*2, // 2 years
@@ -13,8 +13,14 @@ module.exports = {
       httpOnly: true
       // secure: true
     }
-    ctx.cookies.set(cookieName, newCookieValue, cookieOpts);
-    logger.info({ hostname: ctx.hostname, bounce_cookie: ctx.cookies.get(cookieName), cookie_opts: cookieOpts },
+    ctx.cookies.set(cookieName, cookieValue, cookieOpts);
+    logger.info({ hostname: ctx.hostname,
+                  cookie: {
+                    name: cookieName,
+                    value_res: cookieValue,
+                    value_req: ctx.cookies.get(cookieName)
+                  },
+                  cookie_opts: cookieOpts },
                 'setting cookie in response');
   },
 
