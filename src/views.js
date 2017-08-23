@@ -35,6 +35,7 @@ function viewState (ctx, childHostname, cookieName) {
   cookieValue = ctx.cookies.get(cookieName);
 
   return {
+    hostname: ctx.hostname,
     child_hostname: childHostname,
     return_url: ctx.query['return-url'] || ctx.request.header.referer,
     cookie: cookieValue ? { name: cookieName, value: cookieValue } : undefined
