@@ -8,6 +8,10 @@
 
     <h1>child - bouncer</h1>
     <p>
+      {{#cookie}}cookie: {{name}} => <span style="white-space: nowrap;">{{value}}</span>{{/cookie}}
+      {{^cookie}}no cookie{{/cookie}}
+    </p>
+    <p>
       user interaction...
     </p>
     <ul>

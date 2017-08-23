@@ -7,8 +7,19 @@
   <body>
 
     <h1>parent</h1>
+    <p>
+      {{#cookie}}cookie: {{name}} => <span style="white-space: nowrap;">{{value}}</span>{{/cookie}}
+      {{^cookie}}no cookie{{/cookie}}
+    </p>
     <p>child:</p>
-    <iframe src="http://{{child_hostname}}:3003/child/"/>
+
+    <script>
+      window.addEventListener("message", function(event) {
+        document.querySelector('#iframe').style.height = `${event.data.height}px`;
+      });
+    </script>
+    <iframe id="iframe" src="http://{{child_hostname}}:3003/child/"/>
 
   </body>
+
 </html>

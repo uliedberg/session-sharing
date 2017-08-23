@@ -4,7 +4,7 @@ const path = require('path');
 const logger = bunyan.createLogger({name: "view-middleware"});
 
 module.exports = function (opts = {}) {
-  const { childHostname } = opts;
+  const { childHostname, cookieName } = opts;
 
   return async function (ctx, next) {
     const po = path.parse(ctx.path);
@@ -16,16 +16,27 @@ module.exports = function (opts = {}) {
 
     const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\/+/, '');
     // move state...
-    const locals = {
-      child_hostname: childHostname,
-      return_url: ctx.query['return-url'] || ctx.request.header.referer
-    };
-    logger.info({ hostname: ctx.hostname, view_path: viewPath, return_url: locals.return_url }, 'will try to render');
+    const localState = viewState(ctx, childHostname, cookieName);
+    // const locals = {
+    //   child_hostname: childHostname,
+    //   return_url: ctx.query['return-url'] || ctx.request.header.referer
+    // };
+    logger.info({ hostname: ctx.hostname, view_path: viewPath, local_state: localState }, 'will try to render');
     try {
-      await ctx.render(viewPath, locals);
+      await ctx.render(viewPath, localState);
     } catch (e) {
       logger.info({ hostname: ctx.hostname, template_error: e}, 'template error - passing on to next');
       return await next();
     }
+  }
+}
+
+function viewState (ctx, childHostname, cookieName) {
+  cookieValue = ctx.cookies.get(cookieName);
+
+  return {
+    child_hostname: childHostname,
+    return_url: ctx.query['return-url'] || ctx.request.header.referer,
+    cookie: cookieValue ? { name: cookieName, value: cookieValue } : undefined
   }
 }

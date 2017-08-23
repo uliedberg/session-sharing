@@ -7,6 +7,10 @@
   <body>
 
     <h1>child - index</h1>
+    <p>
+      {{#cookie}}cookie: {{name}} => <span style="white-space: nowrap;">{{value}}</span>{{/cookie}}
+      {{^cookie}}no cookie{{/cookie}}
+    </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
       <li><a target="_blank" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_blank"</a></li>
@@ -16,6 +20,8 @@
   </body>
 
   <script>
-
+    document.addEventListener("DOMContentLoaded", function(event) {
+      window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+    });
   </script>
 </html>
