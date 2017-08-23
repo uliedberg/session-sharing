@@ -1,24 +1,25 @@
+const bunyan = require('bunyan');
 const path = require('path');
 
-module.exports = function (opts = {}) {
-  const logger = opts.logger;
+const logger = bunyan.createLogger({name: "view-middleware"});
 
-  // TODO: clean up error handling and passing to next middleware... (pull out state and then no need for much of this code)
+module.exports = function (opts = {}) {
   return async function (ctx, next) {
-    logger.info({ hostname: ctx.hostname, path: ctx.path }, 'maybe render');
-    if (!/.*\.child\.com$/.test(ctx.hostname)) {
-      logger.info({ hostname: ctx.hostname }, 'skipping to next middleware');
+    const po = path.parse(ctx.path);
+
+    if (po.ext && po.ext != '.html') {
+      logger.info({ hostname: ctx.hostname, url: ctx.url }, 'skipping views handling for url');
       return await next();
     }
 
-    const po = path.parse(ctx.path);
-    const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\//, '');
+    const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\/+/, '');
+    // move state...
     const locals = { return_url: ctx.query['return-url'] || ctx.request.header.referer };
     logger.info({ hostname: ctx.hostname, view_path: viewPath, return_url: locals.return_url }, 'will try to render');
     try {
       await ctx.render(viewPath, locals);
     } catch (e) {
-      logger.info({ template_error: e}, 'template error - passing on to next');
+      logger.info({ hostname: ctx.hostname, template_error: e}, 'template error - passing on to next');
       return await next();
     }
   }
