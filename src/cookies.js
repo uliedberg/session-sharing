@@ -4,10 +4,10 @@ const bunyan = require('bunyan');
 const logger = bunyan.createLogger({name: "cookie-util"});
 
 module.exports = {
-  setUuid: function (ctx, cookieName, opts = {}) {
+  setUuid: function (ctx, cookieName, domain, opts = {}) {
     const newCookieValue = uuidv4();
     const cookieOpts = {
-      domain: '.child.com',
+      domain: domain,
       maxAge: 1000*60*60*24 * 365*2, // 2 years
       overwrite: false, // default & we don't want to remove other cookies
       httpOnly: true

@@ -4,6 +4,8 @@ const path = require('path');
 const logger = bunyan.createLogger({name: "view-middleware"});
 
 module.exports = function (opts = {}) {
+  const { childHostname } = opts;
+
   return async function (ctx, next) {
     const po = path.parse(ctx.path);
 
@@ -14,7 +16,10 @@ module.exports = function (opts = {}) {
 
     const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\/+/, '');
     // move state...
-    const locals = { return_url: ctx.query['return-url'] || ctx.request.header.referer };
+    const locals = {
+      child_hostname: childHostname,
+      return_url: ctx.query['return-url'] || ctx.request.header.referer
+    };
     logger.info({ hostname: ctx.hostname, view_path: viewPath, return_url: locals.return_url }, 'will try to render');
     try {
       await ctx.render(viewPath, locals);

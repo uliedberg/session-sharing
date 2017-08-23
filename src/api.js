@@ -5,7 +5,7 @@ const cookies = require('./cookies.js');
 const logger = bunyan.createLogger({name: "api-middleware"})
 
 module.exports = function (opts = {}) {
-  const { cookieName } = opts;
+  const { cookieName, domain } = opts;
 
   return async (ctx, next) => {
     if (ctx.path == '/redirect') {
@@ -15,7 +15,7 @@ module.exports = function (opts = {}) {
 
       ctx.status = 303;
       ctx.set('location', redirectUrl);
-      cookies.setUuid(ctx, cookieName);
+      cookies.setUuid(ctx, cookieName, domain);
     } else {
       ctx.throw(400, 'unsupported', { path: ctx.path, method: ctx.method });
     }
