@@ -3,13 +3,19 @@
   <head>
     <meta charset="UTF-8">
     <title>parent</title>
+    <style type="text/css">
+      body { font-size: 20px; margin: 0 2em; }
+      ul { line-height: 2; }
+      .nowrap { white-space: nowrap; }
+      iframe { width: 100% }
+    </style>
   </head>
   <body>
 
     <h1>parent</h1>
     <p>
       hostname: {{hostname}}<br/>
-      {{#cookie}}cookie: {{name}} => <span style="white-space: nowrap;">{{value}}</span>{{/cookie}}
+      {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
       {{^cookie}}no cookie{{/cookie}}
     </p>
     <p>child:</p>
