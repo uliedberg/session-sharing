@@ -30,9 +30,9 @@ module.exports = {
     return async (ctx, next) => {
       const cookies = ctx.request.headers["cookie"];
       if (!cookies) {
-        logger.info({ hostname: ctx.hostname }, 'no cookies in request');
+        logger.info({ hostname: ctx.hostname, url: ctx.url, }, 'no cookies in request');
       } else {
-        logger.info({ hostname: ctx.hostname,  url: ctx.url, cookies: cookies },
+        logger.info({ hostname: ctx.hostname, url: ctx.url, cookies: cookies },
           'cookies in request');
       }
       await next();
