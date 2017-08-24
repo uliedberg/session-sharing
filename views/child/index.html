@@ -16,6 +16,7 @@
       hostname: {{hostname}}<br/>
       {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
       {{^cookie}}no cookie{{/cookie}}
+      </br>(mind that this page is probably cached)
     </p>
     <p>
       API '/ping/{uuid}' response: <span id="api-result">no response</a>
@@ -29,10 +30,9 @@
   </body>
 
   <script>
-
-
+    // include credentials for cookies - try good old XHR instead?
     document.addEventListener("DOMContentLoaded", function(event) {
-      fetch(`/api/ping/${uuidv4()}`, { method: 'get', headers: { 'Accept': 'application/json' } })
+      fetch(`/api/ping/${uuidv4()}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
         .then(function (response) {
           if(response.ok) { return response.json(); }
           throw new Error('Network response was not ok.');
