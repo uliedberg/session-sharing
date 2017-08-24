@@ -30,7 +30,8 @@ const errorFun = function (ctx) {
 module.exports = function (opts = {}) {
   return async (ctx, next) => {
     ctx.set('Cache-Control', 'max-age=0, no-cache, no-store');
-    const po = path.parse(ctx.path);
-    (paths[po.dir] || errorFun)(ctx, opts);
+    const routePath = ctx.path.replace(/(^\/.+)[\/|$].*/, "$1");
+    logger.info({ hostname: ctx.hostname, route_path: routePath }, 'API middlware routing about to happen');
+    (paths[routePath] || errorFun)(ctx, opts);
   };
 };
