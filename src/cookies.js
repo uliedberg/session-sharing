@@ -32,7 +32,8 @@ module.exports = {
       if (!cookies) {
         logger.info({ hostname: ctx.hostname }, 'no cookies in request');
       } else {
-        logger.info({ hostname: ctx.hostname, cookies: cookies }, 'cookies in request');
+        logger.info({ hostname: ctx.hostname,  url: ctx.url, cookies: cookies },
+          'cookies in request');
       }
       await next();
     }
