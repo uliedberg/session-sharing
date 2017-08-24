@@ -7,6 +7,7 @@
       body { font-size: 20px; margin: 0 2em; }
       ul { line-height: 2; }
       .nowrap { white-space: nowrap; }
+      .updated { box-shadow: 0 0 .25em rgb(0,255,0); background: rgba(0,255,0,0.5); border-radius: 2px; transition: 0.2s; }
     </style>
   </head>
   <body>
@@ -19,7 +20,8 @@
       </br>(mind that this page is probably cached)
     </p>
     <p>
-      API '/cookie/{uuid}' response: <span id="api-result">no response</a>
+      API '/cookie/{uuid}' response: <span id="api-result" class="nowrap">no response</span>
+      <button id="api-call">manual api call</button>
     </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
@@ -30,19 +32,31 @@
   </body>
 
   <script>
-    // include credentials for cookies - try good old XHR instead?
+
     document.addEventListener("DOMContentLoaded", function(event) {
-      fetch(`/api/cookie/${uuidv4()}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
+      const uuid = uuidv4()
+      fetchCookie(uuid)
+        .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
+      document.querySelector('#api-call').addEventListener('click', fetchCookie.bind(this, uuid));
+    });
+
+    // include credentials for cookies - try good old XHR instead?
+    function fetchCookie (uuid) {
+      return fetch(`/api/cookie/${uuid}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
         .then(function (response) {
           if(response.ok) { return response.json(); }
           throw new Error('Network response was not ok.');
         })
-        .then(function (json) { document.querySelector('#api-result').innerHTML = `${json.name} => ${json.value}`; })
+        .then(function (json) {
+          const result = document.querySelector('#api-result');
+          result.innerHTML = `${json.name} => ${json.value}`;
+          result.classList.add('updated');
+          setTimeout(function () { result.classList.remove('updated'); }, 300);
+        })
         .catch(function (error) { console.log({message: 'error calling API', error: error }); })
-        .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
-    });
+    }
 
-    function uuidv4() {
+    function uuidv4 () {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
       )
