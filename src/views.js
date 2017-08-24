@@ -22,7 +22,10 @@ module.exports = function (opts = {}) {
     logger.info({ hostname: ctx.hostname, view_path: viewPath, local_state: localState }, 'will try to render');
     try {
       await ctx.render(viewPath, localState);
-      ctx.set('Cache-Control', `max-age=${HTML_MAX_AGE}`);
+      if (ctx.hostname == childHostname) {
+        logger.info({ hostname: ctx.hostname }, 'view request to child, indicating cacheable content');
+        ctx.set('Cache-Control', `max-age=${HTML_MAX_AGE}`);
+      }
     } catch (e) {
       logger.info({ hostname: ctx.hostname, template_error: e}, 'template error - passing on to next');
       return await next();
