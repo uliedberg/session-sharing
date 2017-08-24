@@ -18,18 +18,28 @@
       {{^cookie}}no cookie{{/cookie}}
     </p>
     <p>
-      user interaction...
+      user interaction... <span id="status"/>
     </p>
     <ul>
-      <li><a href="{{return_url}}">return to parent</a></li>
+      <li><a href="{{return_url}}" id="parent-link">return to parent</a></li>
       <li><a href="#" id="close">close context</a></li>
     </ul>
 
 <script>
+  document.querySelector('#parent-link').addEventListener('click', function (e) {
+    e.preventDefault();
+    delay(function () { window.location = e.target.href; });
+  });
   document.querySelector('#close').addEventListener('click', function (e) {
     e.preventDefault();
-    window.close();
+    delay(window.close);
   });
+
+  function delay (fun) {
+    const delayTime = 4000;
+    document.querySelector('#status').innerHTML = `delaying action for ${delayTime}ms`
+    setTimeout(fun, delayTime);
+  }
 </script>
 
   </body>
