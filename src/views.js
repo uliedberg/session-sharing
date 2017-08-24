@@ -22,7 +22,7 @@ module.exports = function (opts = {}) {
     logger.info({ hostname: ctx.hostname, view_path: viewPath, local_state: localState }, 'will try to render');
     try {
       await ctx.render(viewPath, localState);
-      if (ctx.hostname == childHostname) {
+      if (ctx.hostname == childHostname && po.base != 'bouncer.html') {
         logger.info({ hostname: ctx.hostname }, 'view request to child, indicating cacheable content');
         ctx.set('Cache-Control', `max-age=${HTML_MAX_AGE}`);
       }
