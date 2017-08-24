@@ -18,7 +18,7 @@
       {{^cookie}}no cookie{{/cookie}}
     </p>
     <p>
-      API '/ping' response: <span id="api-result">no response</a>
+      API '/ping/{uuid}' response: <span id="api-result">no response</a>
     </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
@@ -29,8 +29,10 @@
   </body>
 
   <script>
+
+
     document.addEventListener("DOMContentLoaded", function(event) {
-      fetch('/api/ping', { method: 'get', headers: { 'Accept': 'application/json' } })
+      fetch(`/api/ping/${uuidv4()}`, { method: 'get', headers: { 'Accept': 'application/json' } })
         .then(function (response) {
           if(response.ok) { return response.json(); }
           throw new Error('Network response was not ok.');
@@ -39,5 +41,11 @@
         .catch(function (error) { console.log({message: 'error calling API', error: error }); })
         .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
     });
+
+    function uuidv4() {
+      return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+        (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+      )
+    }
   </script>
 </html>

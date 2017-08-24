@@ -3,6 +3,8 @@ const path = require('path');
 
 const logger = bunyan.createLogger({name: "view-middleware"});
 
+const HTML_MAX_AGE = 60*60*24 * 365; // 1 year
+
 module.exports = function (opts = {}) {
   const { childHostname, cookieName } = opts;
 
@@ -17,13 +19,10 @@ module.exports = function (opts = {}) {
     const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\/+/, '');
     // move state...
     const localState = viewState(ctx, childHostname, cookieName);
-    // const locals = {
-    //   child_hostname: childHostname,
-    //   return_url: ctx.query['return-url'] || ctx.request.header.referer
-    // };
     logger.info({ hostname: ctx.hostname, view_path: viewPath, local_state: localState }, 'will try to render');
     try {
       await ctx.render(viewPath, localState);
+      ctx.set('Cache-Control', `max-age=${HTML_MAX_AGE}`);
     } catch (e) {
       logger.info({ hostname: ctx.hostname, template_error: e}, 'template error - passing on to next');
       return await next();

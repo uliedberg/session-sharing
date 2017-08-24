@@ -1,11 +1,13 @@
 
 const bunyan = require('bunyan');
+const path = require('path');
+
 const cookies = require('./cookies.js');
 
 const logger = bunyan.createLogger({name: "api-middleware"})
 
 const paths = {
-  '/redirect': function (ctx, opts) {
+  '/redirect': function (ctx, opts) { // /redirect?url={url}
     const { cookieName, domain } = opts;
     const redirectUrl = ctx.request.query['url'];
     if (!redirectUrl) ctx.throw(400, 'no "url" query param', { path: ctx.path, method: ctx.method });
@@ -15,7 +17,7 @@ const paths = {
     ctx.set('location', redirectUrl);
     cookies.setUuid(ctx, cookieName, domain);
   },
-  '/ping': function (ctx) {
+  '/ping': function (ctx) { // /ping/{uuid}
     logger.info({ hostname: ctx.hostname }, 'will respond to ping');
     ctx.status = 200;
     ctx.body = { message: 'pong' };
@@ -27,6 +29,8 @@ const errorFun = function (ctx) {
 
 module.exports = function (opts = {}) {
   return async (ctx, next) => {
-    (paths[ctx.path] || errorFun)(ctx, opts);
+    ctx.set('Cache-Control', 'max-age=0, no-cache, no-store');
+    const po = path.parse(ctx.path);
+    (paths[po.dir] || errorFun)(ctx, opts);
   };
 };
