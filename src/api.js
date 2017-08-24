@@ -17,10 +17,11 @@ const paths = {
     ctx.set('location', redirectUrl);
     cookies.setUuid(ctx, cookieName, domain);
   },
-  '/ping': function (ctx) { // /ping/{uuid}
-    logger.info({ hostname: ctx.hostname }, 'will respond to ping');
+  '/cookie': function (ctx, opts) { // /cookie/{uuid}
+    const { cookieName } = opts;
+    logger.info({ hostname: ctx.hostname }, 'will respond to cookie request');
     ctx.status = 200;
-    ctx.body = { message: 'pong' };
+    ctx.body = { name: cookieName, value: ctx.cookies.get(cookieName) };
   }
 };
 const errorFun = function (ctx) {

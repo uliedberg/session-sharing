@@ -19,7 +19,7 @@
       </br>(mind that this page is probably cached)
     </p>
     <p>
-      API '/ping/{uuid}' response: <span id="api-result">no response</a>
+      API '/cookie/{uuid}' response: <span id="api-result">no response</a>
     </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
@@ -32,12 +32,12 @@
   <script>
     // include credentials for cookies - try good old XHR instead?
     document.addEventListener("DOMContentLoaded", function(event) {
-      fetch(`/api/ping/${uuidv4()}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
+      fetch(`/api/cookie/${uuidv4()}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
         .then(function (response) {
           if(response.ok) { return response.json(); }
           throw new Error('Network response was not ok.');
         })
-        .then(function (json) { document.querySelector('#api-result').innerHTML = json.message; })
+        .then(function (json) { document.querySelector('#api-result').innerHTML = `${json.name} => ${json.value}`; })
         .catch(function (error) { console.log({message: 'error calling API', error: error }); })
         .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
     });
