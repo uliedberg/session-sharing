@@ -17,6 +17,9 @@
       {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
       {{^cookie}}no cookie{{/cookie}}
     </p>
+    <p>
+      API '/ping' response: <span id="api-result">no response</a>
+    </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
       <li><a target="_blank" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_blank"</a></li>
@@ -27,7 +30,14 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function(event) {
-      window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+      fetch('/api/ping', { method: 'get', headers: { 'Accept': 'application/json' } })
+        .then(function (response) {
+          if(response.ok) { return response.json(); }
+          throw new Error('Network response was not ok.');
+        })
+        .then(function (json) { document.querySelector('#api-result').innerHTML = json.message; })
+        .catch(function (error) { console.log({message: 'error calling API', error: error }); })
+        .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
     });
   </script>
 </html>
