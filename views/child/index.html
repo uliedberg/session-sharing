@@ -4,10 +4,22 @@
     <meta charset="UTF-8">
     <title>child - index</title>
     <style type="text/css">
-      body { font-size: 20px; margin: 0 2em; }
+      body { font-size: 20px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0 2em; }
       ul { line-height: 2; }
       .nowrap { white-space: nowrap; }
       .updated { box-shadow: 0 0 .25em rgb(0,255,0); background: rgba(0,255,0,0.5); border-radius: 2px; transition: 0.2s; }
+      .button {
+        font-size: 20px;
+        background: rgba(0,0,0,0.2);
+        padding: 0.25em 0.5em;
+        margin: 0.25em;
+        border-radius: 0.25em;
+        text-decoration: none;
+        color: rgb(0,0,0);
+      }
+      .button:active {
+        background: rgba(0,0,0,0.1);
+      }
     </style>
   </head>
   <body>
@@ -17,11 +29,13 @@
       hostname: {{hostname}}<br/>
       {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
       {{^cookie}}no cookie{{/cookie}}
-      </br>(mind that this page is probably cached)
+    </br>
+    (mind that ^ is probably cached)
     </p>
     <p>
-      API '/cookie/{uuid}' response: <span id="api-result" class="nowrap">no response</span>
-      <button id="api-call">manual api call</button>
+      API call "/cookie/{uuid}" response:
+      <span id="api-result" class="nowrap">no response</span>
+      <a href="#" id="api-call" class="button">manual api call</a>
     </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
@@ -34,10 +48,13 @@
   <script>
 
     document.addEventListener("DOMContentLoaded", function(event) {
-      const uuid = uuidv4()
+      const uuid = uuidv4();
       fetchCookie(uuid)
         .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
-      document.querySelector('#api-call').addEventListener('click', fetchCookie.bind(this, uuid));
+      document.querySelector('#api-call').addEventListener('click', function (e) {
+        e.preventDefault();
+        fetchCookie(uuid);
+      });
     });
 
     // include credentials for cookies - try good old XHR instead?

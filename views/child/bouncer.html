@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <title>child - bouncer</title>
     <style type="text/css">
-      body { font-size: 20px; margin: 0 2em; }
+      body { font-size: 20px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0 2em; }
       ul { line-height: 2; }
       .nowrap { white-space: nowrap; }
+      .updated { box-shadow: 0 0 .25em rgb(0,255,0); background: rgba(0,255,0,0.5); border-radius: 2px; transition: 0.2s; }
     </style>
   </head>
   <body>
@@ -18,7 +19,7 @@
       {{^cookie}}no cookie{{/cookie}}
     </p>
     <p>
-      user interaction... <span id="status"/>
+      user interaction: <span id="status"/>
     </p>
     <ul>
       <li><a href="{{return_url}}" id="parent-link">return to parent</a></li>
@@ -37,8 +38,11 @@
 
   function delay (fun) {
     const delayTime = 4000;
-    document.querySelector('#status').innerHTML = `delaying action for ${delayTime}ms`
-    setTimeout(fun, delayTime);
+    const status = document.querySelector('#status');
+    status.innerHTML = `delaying action for ${delayTime}ms`
+    status.classList.add('updated');
+    setTimeout(function () { status.classList.remove('updated'); }, 300);
+    setTimeout(function () { status.innerHTML = ''; fun(); }, delayTime);
   }
 </script>
 
