@@ -26,11 +26,11 @@
       user interaction: <span id="status"/>
     </p>
     <ul>
-      <li><a href="{{return_url}}" id="parent-link">return to parent</a></li>
+      <li><a href="{{return_url}}" class="parent-link">return to parent</a></li>
       <li><a href="#" id="close">close context</a></li>
-      <li><a href="/api/bouncer_redirect?url={{return_url}}">server redirect to parent</a></li>
+      <li><a href="/api/bouncer_redirect?url={{return_url}}" class="parent-link">server redirect to parent</a></li>
       <li>
-        <form method="post" action="/api/bouncer_redirect?url={{return_url}}">
+        <form id="form" method="post" action="/api/bouncer_redirect?url={{return_url}}">
           <input type="text" placeholder="some data" size="15"/>
           <input type="submit" value="submit &amp; redirect to parent"/>
         </form>
@@ -39,7 +39,7 @@
 
 
 <script>
-  document.querySelector('#parent-link').addEventListener('click', function (e) {
+  document.querySelector('.parent-link').addEventListener('click', function (e) {
     e.preventDefault();
     delay(function () { window.location = e.target.href; });
   });
@@ -47,9 +47,13 @@
     e.preventDefault();
     delay(window.close);
   });
+  document.querySelector('#form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    delay(this.submit.bind(this));
+  });
 
   function delay (fun) {
-    const delayTime = 4000;
+    const delayTime = 5000; // bug in webkit - solved in https://bugs.webkit.org/show_bug.cgi?id=175090 - has not landed in Safari
     const status = document.querySelector('#status');
     status.innerHTML = `delaying action for ${delayTime}ms`
     status.classList.add('updated');
