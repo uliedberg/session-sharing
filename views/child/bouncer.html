@@ -39,9 +39,11 @@
 
 
 <script>
-  document.querySelector('.parent-link').addEventListener('click', function (e) {
-    e.preventDefault();
-    delay(function () { window.location = e.target.href; });
+  document.querySelectorAll('.parent-link').forEach(function (elem) {
+    elem.addEventListener('click', function (e) {
+      e.preventDefault();
+      delay(function () { window.location = e.target.href; });
+    });
   });
   document.querySelector('#close').addEventListener('click', function (e) {
     e.preventDefault();
