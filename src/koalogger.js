@@ -1,11 +1,15 @@
-// taken from https://github.com/ivpusic/koa-bunyan plus some extra logs for host header
-
+// taken from https://github.com/ivpusic/koa-bunyan and then modified some...
+const bunyan = require('bunyan');
 const util = require('util');
 
-module.exports = function (logger, opts) {
-  opts = opts || {};
+module.exports = function (opts = {}) {
+  const logger = bunyan.createLogger({
+    name: "req-res-logger",
+    serializers: bunyan.stdSerializers
+  });
 
   const defaultLevel = opts.level || 'info';
+  const verbose = !!opts.verbose;
   const requestTimeLevel = opts.timeLimit;
 
   return function (ctx, next) {
@@ -20,7 +24,9 @@ module.exports = function (logger, opts) {
       if (requestTimeLevel && requestTime > requestTimeLevel) {
         localLevel = 'warn';
       }
-      logger[localLevel](logData, util.format('[RES] %s %s %s (%s) took %s ms',
+      // const resLogData = logData;
+      const resLogData = verbose ? Object.assign({ req: ctx.req, res: ctx.res }, logData) : logData;
+      logger[localLevel](resLogData, util.format('[RES] %s %s %s (%s) took %s ms',
                          ctx.method, ctx.host, ctx.originalUrl, ctx.status, requestTime));
     };
 

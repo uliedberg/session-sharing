@@ -14,10 +14,10 @@ const apiMW = require('./api.js');
 const childHostname = process.env.CHILD_HOSTNAME || 'sub.child.com';
 const cookieName = 'bounce';
 
-const logger = bunyan.createLogger({name: "cookie-base"});
+const logger = bunyan.createLogger({ name: "cookie-base" });
 
 const app = new Koa()
-  .use(koaLogger(bunyan.createLogger({name: "req-res-logger"}), { level: 'info' }))
+  .use(koaLogger({ level: 'info', verbose: false }))
   .use(cookies.log({ cookieName: 'bounce' }))
   .use(mount('/api', apiMW( { cookieName, domain: cookieDomainFromHostName(childHostname) })))
   .use(views(__dirname + '/../views', { map: { html: 'mustache' } }))
