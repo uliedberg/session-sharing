@@ -9,7 +9,11 @@
       ul { padding-left: 1.5em }
       li { margin: 0.5em 0; }
       .nowrap { white-space: nowrap; }
-      .updated { box-shadow: 0 0 .25em rgb(0,255,0); background: rgba(0,255,0,0.5); border-radius: 2px; transition: 0.2s; }
+      .api-result { background-color: rgb(255,255,255); transition: 0.3s; }
+      .updated { border-radius: 2px; }
+      .updated.green { background-color: rgba(0,255,0,0.5); box-shadow: 0 0 .25em rgb(0,255,0); }
+      .updated.yellow { background-color: rgba(255,255,0,0.5); box-shadow: 0 0 .25em rgb(255,255,0); }
+      .updated.magenta { background-color: rgba(255,0,255,0.5); box-shadow: 0 0 .25em rgb(255,0, 255); }
     </style>
   </head>
   <body>
@@ -25,22 +29,22 @@
     <p>
       <div>fetch request "/cookie/{uuid}" response:</div>
       <div>
-        <span id="api-result" class="nowrap">no response</span>
+        <span id="api-result" class="nowrap api-result">no response</span>
         <a href="#" id="api-call">[manual api call]</a>
       </div>
     </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
-      <li><a target="_blank" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_blank"</a></li>
-      <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect on target="_top" (set cookie)</a></li>
+      <li><a id="link-new-context" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction new context (window.open)"</a></li>
+      <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect in target="_top" (set cookie)</a></li>
     </ul>
 
   </body>
 
   <script>
+    const uuid = uuidv4();
 
     document.addEventListener("DOMContentLoaded", function(event) {
-      const uuid = uuidv4();
       fetchCookie(uuid)
         .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
       document.querySelector('#api-call').addEventListener('click', function (e) {
@@ -49,8 +53,25 @@
       });
     });
 
+    document.querySelector('#link-new-context').addEventListener('click', function (e) {
+      e.preventDefault();
+      const newWin = window.open(e.target.href);
+      newWin.addEventListener('load', function(loadEvent) {
+        newWin.addEventListener('unload', function (unloadEvent) {
+          console.log(`${e.target.href} unloaded - fetching cookie`);
+          fetchCookie(uuid, { cssClass: 'yellow' });
+        });
+      });
+      // Note: you can do both on unload and on focus and debounce
+      // addEventListenerRunOnce(window, 'focus', function (e) {
+      //   console.log('child window focus after new context has been opened - fetching cookie', e);
+      //   fetchCookie(uuid, { cssClass: 'magenta' });
+      // });
+    });
+
     // include credentials for cookies - try good old XHR instead?
-    function fetchCookie (uuid) {
+    function fetchCookie (uuid, opts = {}) {
+      const cssClass = opts.cssClass || 'green';
       return fetch(`/api/cookie/${uuid}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
         .then(function (response) {
           if(response.ok) { return response.json(); }
@@ -59,8 +80,8 @@
         .then(function (json) {
           const result = document.querySelector('#api-result');
           result.innerHTML = `${json.name} => ${json.value}`;
-          result.classList.add('updated');
-          setTimeout(function () { result.classList.remove('updated'); }, 300);
+          result.classList.add('updated', cssClass);
+          setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
         })
         .catch(function (error) { console.log({message: 'error calling API', error: error }); })
     }
@@ -68,7 +89,16 @@
     function uuidv4 () {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-      )
+      );
     }
+
+    function addEventListenerRunOnce(elem, type, func) {
+      const wrapper = function (e) {
+        elem.removeEventListener(type, wrapper);
+        func(e);
+      }
+      elem.addEventListener(type, wrapper);
+    }
+
   </script>
 </html>
