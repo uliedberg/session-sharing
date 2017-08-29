@@ -26,15 +26,8 @@
       user interaction: <span id="status"/>
     </p>
     <ul>
-      <li><a href="{{return_url}}" class="parent-link">return to parent</a></li>
-      <li><a href="#" id="close">close context</a></li>
-      <li><a href="/api/bouncer_redirect?url={{return_url}}" class="parent-link">server redirect to parent</a></li>
-      <li>
-        <form id="form" method="post" action="/api/bouncer_redirect?url={{return_url}}">
-          <input type="text" placeholder="some data" size="15"/>
-          <input type="submit" value="submit &amp; redirect to parent"/>
-        </form>
-      </li>
+      {{^close_action}}<li><a href="{{return_url}}" class="parent-link">return to parent</a></li>{{/close_action}}
+      {{#close_action}}<li><a href="#" id="close">close context</a></li>{{/close_action}}
     </ul>
 
 
@@ -45,13 +38,11 @@
       delayWithStatus(function () { window.location = e.target.href; });
     });
   });
-  document.querySelector('#close').addEventListener('click', function (e) {
-    e.preventDefault();
-    delayWithStatus(window.close);
-  });
-  document.querySelector('#form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    delayWithStatus(this.submit.bind(this));
+  document.querySelectorAll('#close').forEach(function (elem) {
+    elem.addEventListener('click', function (e) {
+      e.preventDefault();
+      delayWithStatus(window.close);
+    });
   });
 
   function delayWithStatus (fun) {

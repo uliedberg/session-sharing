@@ -40,6 +40,7 @@ function viewState (ctx, childHostname, cookieName) {
     hostname: ctx.hostname,
     child_hostname: childHostname,
     return_url: ctx.query['return-url'] || ctx.request.header.referer,
+    close_action: ctx.query['close-action'] == 'true',
     cookie: cookieValue ? { name: cookieName, value: cookieValue } : undefined
   }
 }

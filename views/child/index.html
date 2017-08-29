@@ -12,7 +12,7 @@
       .api-result { background-color: rgb(255,255,255); transition: 0.3s; }
       .updated { border-radius: 2px; }
       .updated.green { background-color: rgba(0,255,0,0.5); box-shadow: 0 0 .25em rgb(0,255,0); }
-      .updated.yellow { background-color: rgba(255,255,0,0.5); box-shadow: 0 0 .25em rgb(255,255,0); }
+      .updated.yellow { background-color: rgba(255,255,0,0.75); box-shadow: 0 0 .25em rgb(255,255,0); }
       .updated.magenta { background-color: rgba(255,0,255,0.5); box-shadow: 0 0 .25em rgb(255,0, 255); }
     </style>
   </head>
@@ -35,7 +35,7 @@
     </p>
     <ul>
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
-      <li><a id="link-new-context" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction new context (window.open)"</a></li>
+      <li><a id="link-new-context" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}&close-action=true">user interaction in new context (window.open)</a></li>
       <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect in target="_top" (set cookie)</a></li>
     </ul>
 
