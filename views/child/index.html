@@ -45,11 +45,11 @@
     const uuid = uuidv4();
 
     document.addEventListener("DOMContentLoaded", function(event) {
-      fetchCookie(uuid)
+      fetchCookie(uuid, updateApiResult.bind(this, 'green'))
         .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
       document.querySelector('#api-call').addEventListener('click', function (e) {
         e.preventDefault();
-        fetchCookie(uuid);
+        fetchCookie(uuid, updateApiResult.bind(this, 'green'));
       });
     });
 
@@ -59,31 +59,32 @@
       newWin.addEventListener('load', function(loadEvent) {
         newWin.addEventListener('unload', function (unloadEvent) {
           console.log(`${e.target.href} unloaded - fetching cookie`);
-          fetchCookie(uuid, { cssClass: 'yellow' });
+          fetchCookie(uuid, updateApiResult.bind(this, 'yellow'));
         });
       });
       // Note: you can do both on unload and on focus and debounce
       // addEventListenerRunOnce(window, 'focus', function (e) {
       //   console.log('child window focus after new context has been opened - fetching cookie', e);
-      //   fetchCookie(uuid, { cssClass: 'magenta' });
+      //   fetchCookie(uuid, updateApiResult.bind(this, 'magenta'));
       // });
     });
 
     // include credentials for cookies - try good old XHR instead?
-    function fetchCookie (uuid, opts = {}) {
-      const cssClass = opts.cssClass || 'green';
+    function fetchCookie (uuid, jsonResFunc) {
       return fetch(`/api/cookie/${uuid}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
         .then(function (response) {
           if(response.ok) { return response.json(); }
           throw new Error('Network response was not ok.');
         })
-        .then(function (json) {
-          const result = document.querySelector('#api-result');
-          result.innerHTML = `${json.name} => ${json.value}`;
-          result.classList.add('updated', cssClass);
-          setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
-        })
-        .catch(function (error) { console.log({message: 'error calling API', error: error }); })
+        .then(function (json) { jsonResFunc(json); })
+        .catch(function (error) { console.log({message: 'error calling API', error: error }); });
+    }
+
+    function updateApiResult(cssClass, json) {
+      const result = document.querySelector('#api-result');
+      result.innerHTML = `${json.name} => ${json.value}`;
+      result.classList.add('updated', cssClass);
+      setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
     }
 
     function uuidv4 () {
