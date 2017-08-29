@@ -26,8 +26,8 @@
       user interaction: <span id="status"/>
     </p>
     <ul>
-      {{^close_action}}<li><a href="{{return_url}}" class="parent-link">return to parent</a></li>{{/close_action}}
-      {{#close_action}}<li><a href="#" id="close">close context</a></li>{{/close_action}}
+      {{#return_url}}<li><a href="{{return_url}}" class="parent-link">return to parent</a></li>{{/return_url}}
+      {{^return_url}}<li><a href="#" id="close">close context</a></li>{{/return_url}}
     </ul>
 
 

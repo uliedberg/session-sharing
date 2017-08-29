@@ -18,7 +18,7 @@ module.exports = function (opts = {}) {
 
     const viewPath = (path.format(po) + (po.ext ? '' : '/index.html')).replace(/^\/+/, '');
     // move state...
-    const localState = viewState(ctx, childHostname, cookieName);
+    const localState = viewState(ctx, po, childHostname, cookieName);
     logger.info({ hostname: ctx.hostname, view_path: viewPath, local_state: localState }, 'will try to render');
     try {
       await ctx.render(viewPath, localState);
@@ -33,14 +33,13 @@ module.exports = function (opts = {}) {
   }
 }
 
-function viewState (ctx, childHostname, cookieName) {
+function viewState (ctx, po, childHostname, cookieName) {
   cookieValue = ctx.cookies.get(cookieName);
 
   return {
     hostname: ctx.hostname,
     child_hostname: childHostname,
-    return_url: ctx.query['return-url'] || ctx.request.header.referer,
-    close_action: ctx.query['close-action'] == 'true',
+    return_url: ctx.query['return-url'] || (po.base != 'bouncer.html' ? ctx.request.header.referer : undefined),
     cookie: cookieValue ? { name: cookieName, value: cookieValue } : undefined
   }
 }
