@@ -12,6 +12,7 @@
         border: 2px dashed rgba(0,0,0,0.2);
         border-radius: 0.25em;
       }
+      .child-img { width: 10px; }
     </style>
   </head>
   <body>
@@ -19,6 +20,7 @@
     <h1>parent</h1>
     <p>
       hostname: {{hostname}}<br/>
+      image from child: <img src="http://{{child_hostname}}:3003/child/00ff4d-0.8.for-parent.png" class="child-img"/>
     </p>
     <script>
       window.addEventListener("message", function(event) {

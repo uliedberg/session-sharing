@@ -14,6 +14,7 @@
       .updated.green { background-color: rgba(0,255,0,0.5); box-shadow: 0 0 .25em rgb(0,255,0); }
       .updated.yellow { background-color: rgba(255,255,0,0.75); box-shadow: 0 0 .25em rgb(255,255,0); }
       .updated.magenta { background-color: rgba(255,0,255,0.5); box-shadow: 0 0 .25em rgb(255,0, 255); }
+      .hidden { display: none; }
     </style>
   </head>
   <body>
@@ -33,12 +34,12 @@
         <a href="#" id="api-call">[manual api call]</a>
       </div>
     </p>
-    <ul>
-      <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect in target="_top" (set cookie)</a></li>
-    </ul>
-    <ul>
+    <ul id="user-interaction-links">
       <li><a target="_top" href="http://{{child_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
       <li><a id="link-new-context" href="http://{{child_hostname}}:3003/child/bouncer.html">user interaction in new context (window.open)</a></li>
+    </ul>
+    <ul id="server-redirect-for-cookie">
+      <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect in target="_top" (set cookie)</a></li>
     </ul>
 
   </body>
@@ -47,11 +48,12 @@
     const uuid = uuidv4();
 
     document.addEventListener("DOMContentLoaded", function(event) {
-      fetchCookie(uuid, updateApiResult.bind(this, 'green'))
-        .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
+      window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+      fetchCookie(uuid, handleCookieCallResult.bind(this, 'green'));
+        // .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
       document.querySelector('#api-call').addEventListener('click', function (e) {
         e.preventDefault();
-        fetchCookie(uuid, updateApiResult.bind(this, 'green'));
+        fetchCookie(uuid, handleCookieCallResult.bind(this, 'green'));
       });
     });
 
@@ -61,13 +63,13 @@
       newWin.addEventListener('load', function(loadEvent) {
         newWin.addEventListener('unload', function (unloadEvent) {
           console.log(`${e.target.href} unloaded - fetching cookie`);
-          fetchCookie(uuid, updateApiResult.bind(this, 'yellow'));
+          fetchCookie(uuid, handleCookieCallResult.bind(this, 'yellow'));
         });
       });
       // Note: you can do both on unload and on focus and debounce
       // addEventListenerRunOnce(window, 'focus', function (e) {
       //   console.log('child window focus after new context has been opened - fetching cookie', e);
-      //   fetchCookie(uuid, updateApiResult.bind(this, 'magenta'));
+      //   fetchCookie(uuid, handleCookieCallResult.bind(this, 'magenta'));
       // });
     });
 
@@ -82,11 +84,21 @@
         .catch(function (error) { console.log({message: 'error calling API', error: error }); });
     }
 
-    function updateApiResult(cssClass, json) {
+    function handleCookieCallResult(cssClass, json) {
+      updateApiResult(cssClass, json);
+      toggleUserInteractionLinks(json.value);
+    }
+
+    function updateApiResult (cssClass, json) {
       const result = document.querySelector('#api-result');
       result.innerHTML = `${json.name} => ${json.value}`;
       result.classList.add('updated', cssClass);
       setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
+    }
+
+    function toggleUserInteractionLinks(value) {
+      const element = document.querySelector('#user-interaction-links');
+      element.classList[value != undefined ? 'add' : 'remove']('hidden');
     }
 
     function uuidv4 () {
