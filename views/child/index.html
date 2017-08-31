@@ -60,6 +60,7 @@
     document.querySelector('#link-new-context').addEventListener('click', function (e) {
       e.preventDefault();
       const newWin = window.open(e.target.href);
+      // Note that the listeners abide to same-origin-policy - otherwise won't be triggered
       newWin.addEventListener('load', function(loadEvent) {
         newWin.addEventListener('unload', function (unloadEvent) {
           console.log(`${e.target.href} unloaded - fetching cookie`);
