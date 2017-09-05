@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>child - bouncer</title>
+    <link href="./index.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+
+    <h1>child - bouncer</h1>
+    <p>
+      hostname: {{hostname}}<br/>
+      {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
+      {{^cookie}}no cookie{{/cookie}}
+    </p>
+    <p>
+      user interaction: <span id="status"/>
+    </p>
+    <ul>
+      {{#return_url}}<li><a href="{{return_url}}" class="parent-link">return to parent</a></li>{{/return_url}}
+      {{^return_url}}<li><a href="#" id="close">close context</a></li>{{/return_url}}
+    </ul>
+
+
+    <script src="./bouncer.js"></script>
+
+  </body>
+</html>

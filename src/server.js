@@ -20,9 +20,9 @@ const app = new Koa()
   .use(koaLogger({ level: 'info', verbose: false }))
   .use(cookies.log({ cookieName: 'bounce' }))
   .use(mount('/api', apiMW( { cookieName, domain: cookieDomainFromHostName(childHostname) })))
-  .use(views(__dirname + '/../views', { map: { html: 'mustache' } }))
+  .use(views(__dirname + '/../public', { map: { html: 'mustache' } }))
   .use(viewsMW({ childHostname, cookieName }))
-  .use(serve('./views'));
+  .use(serve('./public'));
 
 const server = http.createServer(app.callback());
 server.listen(3003, () => {

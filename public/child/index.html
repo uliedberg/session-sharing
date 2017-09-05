@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>child - index</title>
+    <link href="./index.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+
+    <h1>child - index</h1>
+    <p>
+      hostname: {{hostname}}<br/>
+      {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
+      {{^cookie}}no cookie{{/cookie}}
+    </br>
+    (mind that ^ is probably cached)
+    </p>
+    <p>
+      <div>fetch request "/cookie/{uuid}" response:</div>
+      <div>
+        <span id="api-result" class="nowrap api-result">no response</span>
+        <a href="#" id="api-call">[manual api call]</a>
+      </div>
+    </p>
+    <ul id="user-interaction-links">
+      <li><a target="_top" href="http://{{bouncer_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
+      <li><a id="link-new-context" href="http://{{bouncer_hostname}}:3003/child/bouncer.html">user interaction in new context (window.open)</a></li>
+    </ul>
+    <ul id="server-redirect-for-cookie">
+      <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect in target="_top" (set cookie)</a></li>
+    </ul>
+
+  </body>
+
+  <script src="./index.js"></script>
+
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>parent</title>
+    <link href="./index.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+
+    <h1>parent</h1>
+    <p>
+      hostname: {{hostname}}<br/>
+      image from child: <img src="http://{{child_hostname}}:3003/child/00ff4d-0.8.for-parent.png" class="child-img"/>
+    </p>
+
+    <div id="iframe-parent" />
+    <script>
+      window.iframeConfig = {
+        src: 'http://{{child_hostname}}:3003/child/',
+        parent_id: 'iframe-parent'
+      };
+    </script>
+    <script async src="http://{{child_hostname}}:3003/child/bootstrap.js"></script>
+
+  </body>
+
+</html>
