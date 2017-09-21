@@ -1,8 +1,16 @@
 "use strict";
 
 const uuid = uuidv4();
+const isRedirected = window.location.search.includes('redirected=1');
+// const redirectUrl
 
 document.addEventListener("DOMContentLoaded", function(event) {
+  if (isRedirected) {
+    toggleUserInteractionLinks(undefined);
+    hideRedirectLink();
+  } else {
+    hideRedirectInfo();
+  }
   window.parent.postMessage({ height: document.body.scrollHeight }, "*");
   fetchCookie(uuid, handleCookieCallResult.bind(this, 'green'));
     // .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
@@ -42,7 +50,7 @@ function fetchCookie (uuid, jsonResFunc) {
 
 function handleCookieCallResult(cssClass, json) {
   updateApiResult(cssClass, json);
-  toggleUserInteractionLinks(json.value);
+  if (!isRedirected) { toggleUserInteractionLinks(json.value); }
 }
 
 function updateApiResult (cssClass, json) {
@@ -55,6 +63,16 @@ function updateApiResult (cssClass, json) {
 function toggleUserInteractionLinks(value) {
   const element = document.querySelector('#user-interaction-links');
   element.classList[value != undefined ? 'add' : 'remove']('hidden');
+}
+
+function hideRedirectLink() {
+  const element = document.querySelector('#server-redirect-for-cookie');
+  element.classList.add('hidden');
+}
+
+function hideRedirectInfo() {
+  const element = document.querySelector('#redirected-info');
+  element.classList.add('hidden');
 }
 
 function uuidv4 () {
