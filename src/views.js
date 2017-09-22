@@ -24,7 +24,7 @@ module.exports = function (opts = {}) {
       await ctx.render(viewPath, localState);
       if (ctx.hostname == childHostname && po.base != 'bouncer.html') {
         logger.info({ hostname: ctx.hostname }, 'view request to child, indicating cacheable content');
-        ctx.set('Cache-Control', `max-age=${HTML_MAX_AGE}`);
+        // ctx.set('Cache-Control', `max-age=${HTML_MAX_AGE}`);
       }
     } catch (e) {
       logger.info({ hostname: ctx.hostname, template_error: e}, 'template error - passing on to next');

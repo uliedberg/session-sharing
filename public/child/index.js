@@ -2,6 +2,16 @@
 
 const uuid = uuidv4();
 
+window.addEventListener("message", function(event) {
+  console.log('child index.js received message: ', event);
+  domLogIncomingMessage(event.data)
+  if (event && event.data && event.data.cmd == 'fetch_cookie') {
+    fetchCookie(uuid, function (json) {
+      handleCookieCallResult('yellow', json);
+    });
+  }
+});
+
 document.addEventListener("DOMContentLoaded", function(event) {
   window.parent.postMessage({ height: document.body.scrollHeight }, "*");
   fetchCookie(uuid, handleCookieCallResult.bind(this, 'green'));
@@ -18,9 +28,13 @@ document.querySelector('#link-new-context').addEventListener('click', function (
   // Note that the listeners abide to same-origin-policy - otherwise won't be triggered
   newWin.addEventListener('load', function(loadEvent) {
     newWin.addEventListener('unload', function (unloadEvent) {
-      console.log(`${e.target.href} unloaded - fetching cookie`);
-      fetchCookie(uuid, handleCookieCallResult.bind(this, 'yellow'));
+      console.log(`${e.target.href} unloaded - fetching cookie (not fetching cookue for now... using postmessage)`);
+      // fetchCookie(uuid, handleCookieCallResult.bind(this, 'yellow'));
     });
+    const bouncerMessage = { msg: "ping ping bouncer" };
+    console.log('child index.js will post: ', bouncerMessage);
+    domLogOutgoingMessage(bouncerMessage);
+    newWin.postMessage(bouncerMessage, '*');
   });
   // Note: you can do both on unload and on focus and debounce
   // addEventListenerRunOnce(window, 'focus', function (e) {
@@ -69,4 +83,27 @@ function addEventListenerRunOnce(elem, type, func) {
     func(e);
   }
   elem.addEventListener(type, wrapper);
+}
+
+function domLogOutgoingMessage(data) {
+  domLog(`> ${JSON.stringify(data)}`);
+}
+
+function domLogIncomingMessage(data) {
+  domLog(`< ${JSON.stringify(data)}`);
+}
+
+function domLogJson(json) {
+  domLog(JSON.stringify(json));
+}
+
+function domLog(message) {
+  const messages = document.querySelector('#messages');
+  appendParagraph(messages, message);
+}
+
+function appendParagraph(el, text) {
+  const p = document.createElement('p');
+  p.textContent = text;
+  el.appendChild(p);
 }
