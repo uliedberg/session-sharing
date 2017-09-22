@@ -15,11 +15,10 @@ const childHostname = process.env.CHILD_HOSTNAME || 'sub.child.com';
 const cookieName = 'bounce';
 
 const logger = bunyan.createLogger({ name: "cookie-base" });
-const apiRouter = apiMW({ cookieName, domain: cookieDomainFromHostName(childHostname) });
 const app = new Koa()
-  .use(koaLogger({ level: 'info', verbose: false }))
+  .use(koaLogger({ level: 'info', verbose: true }))
   .use(cookies.log({ cookieName: 'bounce' }))
-  .use(mount('/api', apiRouter.routes()))
+  .use(mount('/api', apiMW({ cookieName, domain: cookieDomainFromHostName(childHostname) })))
   .use(views(__dirname + '/../public', { map: { html: 'mustache' } }))
   .use(viewsMW({ childHostname, cookieName }))
   .use(serve('./public'));
