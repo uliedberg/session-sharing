@@ -2,7 +2,7 @@
 
 const cfg = window.iframeConfig;
 const iframe = document.createElement('iframe');
-iframe.src = cfg.src;
+iframe.src = `${cfg.src}?session-url=${encodeURIComponent(cfg.session_url)}`;
 document
   .querySelector(`#${cfg.parent_id}`)
   .appendChild(iframe);

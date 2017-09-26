@@ -17,7 +17,8 @@
     <script>
       window.iframeConfig = {
         src: 'http://{{child_hostname}}:3003/child/',
-        parent_id: 'iframe-parent'
+        parent_id: 'iframe-parent',
+        session_url: '{{{parent.session.url}}}'
       };
     </script>
     <script async src="http://{{child_hostname}}:3003/child/bootstrap.js"></script>

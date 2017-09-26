@@ -1,6 +1,8 @@
 "use strict";
 
 const uuid = uuidv4(); // cookie end point to not be cached... no real reason now...
+const parsedLocation = new URL(window.location.href);
+const sessionUrl = decodeURIComponent(parsedLocation.searchParams.get("session-url")); // same origin policy - or cors...
 
 // newwin.postMessage({ msg: "heyhey popup!"}, '*');
 
@@ -9,6 +11,8 @@ const uuid = uuidv4(); // cookie end point to not be cached... no real reason no
 window.addEventListener("message", function(event) {
   console.log('bouncer.js received message: ', event);
   domLogIncomingMessage(event.data);
+
+  // TODO: update session & post message for iframe to fetch session once updated
 
   if (!!window.opener) {
     const indexMessage = { msg: 'pong pong index' };
@@ -21,10 +25,17 @@ window.addEventListener("message", function(event) {
         console.log('we have a cookie value! - postmessage back to child index', json);
         domLogOutgoingMessage(cookieAvailableMsg);
         window.opener.postMessage(cookieAvailableMsg, '*');
-      } else {
-        console.log('we don\' have cookie :/');
-      }
 
+        updateSession(sessionUrl, { data: { cookie: json } })
+          .then(function (jsonRes) { // TODO: this will be run even on error...
+            const fetchSessionMsg = { cmd: 'fetch_session', msg: 'cookie avaiable' };
+            domLogOutgoingMessage(fetchSessionMsg);
+            window.opener.postMessage(fetchSessionMsg, '*');
+          });
+        // TODO: OK the session handling should not go here...
+      } else {
+        console.log('we don\'t have cookie :/');
+      }
     });
   } else {
     console.log("I'm all by myself :)");
@@ -83,6 +94,15 @@ function fetchCookie (uuid, jsonResFunc) {
       throw new Error('Network response was not ok.');
     })
     .then(function (json) { jsonResFunc(json); })
+    .catch(function (error) { console.log({message: 'error calling API', error: error }); });
+}
+
+function updateSession (url, data) {
+  return fetch(url, { method: 'post', body: JSON.stringify(data), credentials: 'include', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' } })
+    .then(function (response) {
+      if(response.ok) { return response.json(); }
+      throw new Error('Network response was not ok.');
+    })
     .catch(function (error) { console.log({message: 'error calling API', error: error }); });
 }
 
