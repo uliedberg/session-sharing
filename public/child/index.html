@@ -9,9 +9,14 @@
 
     <h1>child - index</h1>
     <p>
-      hostname: {{hostname}}<br/>
-      {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span>{{/cookie}}
-      {{^cookie}}no cookie{{/cookie}}
+      hostname: <strong>{{hostname}}</strong><br/>
+      hasStorageAccess() on load: <span class="nowrap has-storage-access-on-load">no data</span><br/>
+        hasStorageAccess() after requestStorageAccess: <span class="nowrap has-storage-access-after-req">no data</span>
+        <a href="#" id="request-storage-access">[requestStorageAccess()]</a>
+        <br/>
+      {{#cookie}}cookie: {{name}} => <span class="nowrap">{{value}}</span><br/>{{/cookie}}
+      {{^cookie}}no cookie<br/>{{/cookie}}
+      client readable "has-http-only-cookie" cookie: <span class="nowrap client-cookie">no data</span><br/>
     </br>
     (mind that ^ is probably cached)
     </p>

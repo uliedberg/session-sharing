@@ -4,6 +4,29 @@ const uuid = uuidv4();
 
 document.addEventListener("DOMContentLoaded", function(event) {
   window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+  updateClientCookie('green');
+  hasStorageAccessUpdate('.has-storage-access-on-load', 'green');
+  if (document.requestStorageAccess) {
+    document.querySelector('#request-storage-access').addEventListener('click', function(e) {
+      document.requestStorageAccess()
+        .then(
+          function resolved() {
+            // we now have access!
+            console.log('requestStorageAccess resolved! :)');
+            updateClientCookie('yellow'); // or simply put it in hasStorageAccess?
+            hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            // check a non httpOnly cookie to see if we still have cookies or if they are purged
+            fetchCookie(uuid, handleCookieCallResult.bind(this, 'magenta'));
+
+          },
+          function rejected() {
+            // we don't have access for reason? // call hasStorageAccess to find out?
+            console.log('requestStorageAccess rejected! :(');
+            hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+          }
+        );
+    });
+  }
   fetchCookie(uuid, handleCookieCallResult.bind(this, 'green'));
     // .then(function () { window.parent.postMessage({ height: document.body.scrollHeight }, "*"); });
   document.querySelector('#api-call').addEventListener('click', function (e) {
@@ -29,6 +52,27 @@ document.querySelector('#link-new-context').addEventListener('click', function (
   // });
 });
 
+function updateClientCookie(cssClass) {
+  const result = document.querySelector('.client-cookie');
+  result.innerHTML = !!readJsCookie();
+  result.classList.add('updated', cssClass);
+  setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
+}
+
+function hasStorageAccessUpdate(className, cssClass) {
+  if (document.hasStorageAccess) {
+    document.hasStorageAccess()
+      .then(
+        function resolved(hasAccess) {
+          updateHasStorageAccessResult(hasAccess, className, cssClass);
+        },
+        function rejected(reason) {
+          updateHasStorageAccessResult(`promise rejected: ${reason}`, className, cssClass);
+        }
+      );
+  }
+}
+
 // include credentials for cookies - try good old XHR instead?
 function fetchCookie (uuid, jsonResFunc) {
   return fetch(`/api/cookie/${uuid}`, { method: 'get', credentials: 'include', headers: { 'Accept': 'application/json' } })
@@ -52,6 +96,15 @@ function updateApiResult (cssClass, json) {
   setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
 }
 
+function updateHasStorageAccessResult(hasStorageAccessResult, className, cssClass) {
+  const result = document.querySelector(className);
+  result.innerHTML = hasStorageAccessResult;
+  result.classList.add('updated', cssClass);
+  setTimeout(function () { result.classList.remove('updated', cssClass); }, 200);
+}
+
+
+
 function toggleUserInteractionLinks(value) {
   const element = document.querySelector('#user-interaction-links');
   element.classList[value != undefined ? 'add' : 'remove']('hidden');
@@ -61,6 +114,11 @@ function uuidv4 () {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   );
+}
+
+// TODO: parameterize the cookie name...
+function readJsCookie() {
+  return document.cookie.replace(/(?:(?:^|.*;\s*)has-bounce\s*\=\s*([^;]*).*$)|^.*$/, '$1');
 }
 
 function addEventListenerRunOnce(elem, type, func) {

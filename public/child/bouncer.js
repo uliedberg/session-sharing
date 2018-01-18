@@ -14,7 +14,7 @@ document.querySelectorAll('#close').forEach(function (elem) {
 });
 
 function delayWithStatus (fun) {
-  const delayTime = 5000; // bug in webkit - solved in https://bugs.webkit.org/show_bug.cgi?id=175090 - has not landed in Safari
+  const delayTime = 300; // was a bug in webkit - solved in https://bugs.webkit.org/show_bug.cgi?id=175090 - haslanded in Safari
   const status = document.querySelector('#status');
   status.innerHTML = `delaying action for ${delayTime}ms`
   status.classList.add('updated', 'green');

@@ -10,9 +10,9 @@ module.exports = {
       domain: domain,
       maxAge: 1000*60*60*24 * 365*2, // 2 years
       overwrite: false, // default & we don't want to remove other cookies
-      httpOnly: true
+      httpOnly: true // TODO: skip httpOnly for now to see it in front edn - add another cookie as another way?
       // secure: true
-    }
+    };
     ctx.cookies.set(cookieName, cookieValue, cookieOpts);
     logger.info({ hostname: ctx.hostname,
                   cookie: {
@@ -21,7 +21,17 @@ module.exports = {
                     value_req: ctx.cookies.get(cookieName)
                   },
                   cookie_opts: cookieOpts },
-                'setting cookie in response');
+                'setting cookie in response (plus a "has-" client cookie)');
+    // same as ^ but no httpOnly
+    const clientCookieOpts = {
+      domain: domain,
+      maxAge: 1000*60*60*24 * 365*2, // 2 years
+      overwrite: false, // default & we don't want to remove other cookies
+      httpOnly: false // cookie for client showing we do have cookieName httpOnly cookie
+      // secure: true
+    };
+    ctx.cookies.set(`has-${cookieName}`, 'true', clientCookieOpts);
+    // TODO: log better...
   },
 
   log: function (opts = {}) {

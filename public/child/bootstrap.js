@@ -3,6 +3,7 @@
 const cfg = window.iframeConfig;
 const iframe = document.createElement('iframe');
 iframe.src = cfg.src;
+// iframe.sandbox='allow-storage-access-by-user-activation allow-scripts allow-same-origin'
 document
   .querySelector(`#${cfg.parent_id}`)
   .appendChild(iframe);
