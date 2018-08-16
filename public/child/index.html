@@ -27,12 +27,16 @@
         <a href="#" id="api-call">[manual api call]</a>
       </div>
     </p>
+    <p>
+      <a id="link-reload-iframe" href="#">[reload iframe]</a>
+    </p>
     <ul id="user-interaction-links">
       <li><a target="_top" href="http://{{bouncer_hostname}}:3003/child/bouncer.html?return-url={{return_url}}">user interaction in target="_top"</a></li>
       <li><a id="link-new-context" href="http://{{bouncer_hostname}}:3003/child/bouncer.html">user interaction in new context (window.open)</a></li>
     </ul>
     <ul id="server-redirect-for-cookie">
       <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}">server redirect in target="_top" (set cookie)</a></li>
+      <li><a target="_top" href="http://{{child_hostname}}:3003/api/redirect?url={{return_url}}&force-new=1">server redirect in target="_top" (set cookie - force new value)</a></li>
     </ul>
 
   </body>

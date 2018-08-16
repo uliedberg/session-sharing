@@ -4,8 +4,8 @@ const bunyan = require('bunyan');
 const logger = bunyan.createLogger({name: "cookie-util"});
 
 module.exports = {
-  setUuid: function (ctx, cookieName, domain, opts = {}) {
-    const cookieValue = ctx.cookies.get(cookieName) || uuidv4();
+  setUuid: function (ctx, cookieName, shouldForceNewValue, domain, opts = {}) {
+    const cookieValue = !!shouldForceNewValue ? uuidv4() : (ctx.cookies.get(cookieName) || uuidv4());
     const cookieOpts = {
       domain: domain,
       maxAge: 1000*60*60*24 * 365*2, // 2 years

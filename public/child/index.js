@@ -7,22 +7,26 @@ document.addEventListener("DOMContentLoaded", function(event) {
   updateClientCookie('green');
   hasStorageAccessUpdate('.has-storage-access-on-load', 'green');
   if (document.requestStorageAccess) {
+    console.log('document.requestStorageAccess exists! :)');
     document.querySelector('#request-storage-access').addEventListener('click', function(e) {
+      e.preventDefault();
       document.requestStorageAccess()
         .then(
           function resolved() {
             // we now have access!
             console.log('requestStorageAccess resolved! :)');
             updateClientCookie('yellow'); // or simply put it in hasStorageAccess?
-            hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            // hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            updateHasStorageAccessResult(true, '.has-storage-access-after-req', 'yellow');
             // check a non httpOnly cookie to see if we still have cookies or if they are purged
             fetchCookie(uuid, handleCookieCallResult.bind(this, 'magenta'));
-
           },
-          function rejected() {
+          function rejected(reason) {
             // we don't have access for reason? // call hasStorageAccess to find out?
+            updateClientCookie('yellow'); // or simply put it in hasStorageAccess?
             console.log('requestStorageAccess rejected! :(');
-            hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            // hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            updateHasStorageAccessResult(`promise rejected: ${reason}`, '.has-storage-access-after-req', 'yellow');
           }
         );
     });
@@ -33,6 +37,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
     e.preventDefault();
     fetchCookie(uuid, handleCookieCallResult.bind(this, 'green'));
   });
+});
+
+// TODO: merde this is ugly
+// location.reload(); // arg true means force reload from server - since it might happen regardless we need to fix redirect_url...
+document.querySelector('#link-reload-iframe').addEventListener('click', function (e) {
+  e.preventDefault();
+  console.log('about to reload iframe - current location: ', location)
+  const params = new URLSearchParams(document.location.search.substring(1));
+  if (!params.get('return-url')) {
+    const newUrl = location.href + (!!location.search ? '&' : '?') + 'return-url=' + document.referrer;
+    console.log('about to reload iframe - location with added query param return-url with document.referrer: ', newUrl)
+    location.assign(newUrl)
+  } else {
+    location.reload();
+  }
 });
 
 document.querySelector('#link-new-context').addEventListener('click', function (e) {

@@ -7,10 +7,11 @@ const cookies = require('./cookies.js');
 const logger = bunyan.createLogger({name: "api-middleware"})
 
 const paths = {
-  '/redirect': function (ctx, opts) { // /redirect?url={url}
+  '/redirect': function (ctx, opts) { // /redirect?url={url}&force-new=1
     const { cookieName, domain } = opts;
     redirect(ctx);
-    cookies.setUuid(ctx, cookieName, domain);
+    const shouldForceNewValue = !!ctx.request.query['force-new'];
+    cookies.setUuid(ctx, cookieName, shouldForceNewValue, domain);
   },
   '/bouncer_redirect': function (ctx, opts) {
     logger.info({ hostname: ctx.hostname }, 'bouncer_redirect, ignoring body for now');
