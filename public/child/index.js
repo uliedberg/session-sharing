@@ -14,10 +14,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
         .then(
           function resolved() {
             // we now have access!
-            console.log('requestStorageAccess resolved! :)');
+            console.log('requestStorageAccess resolved! :) . document.cookie: ', document.cookie);
             updateClientCookie('yellow'); // or simply put it in hasStorageAccess?
-            // hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
-            updateHasStorageAccessResult(true, '.has-storage-access-after-req', 'yellow');
+            hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            // updateHasStorageAccessResult(true, '.has-storage-access-after-req', 'yellow');
             // check a non httpOnly cookie to see if we still have cookies or if they are purged
             fetchCookie(uuid, handleCookieCallResult.bind(this, 'magenta'));
           },
@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             // we don't have access for reason? // call hasStorageAccess to find out?
             updateClientCookie('yellow'); // or simply put it in hasStorageAccess?
             console.log('requestStorageAccess rejected! :(');
-            // hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
-            updateHasStorageAccessResult(`promise rejected: ${reason}`, '.has-storage-access-after-req', 'yellow');
+            hasStorageAccessUpdate('.has-storage-access-after-req', 'yellow');
+            // updateHasStorageAccessResult(`promise rejected: ${reason}`, '.has-storage-access-after-req', 'yellow');
           }
         );
     });
@@ -80,12 +80,15 @@ function updateClientCookie(cssClass) {
 
 function hasStorageAccessUpdate(className, cssClass) {
   if (document.hasStorageAccess) {
+    console.log('document.hasStorageAccess exists!');
     document.hasStorageAccess()
       .then(
         function resolved(hasAccess) {
+          console.log('document.hasStorageAccess resolved with hasAccess & document.cookie: ', hasAccess, document.cookie);
           updateHasStorageAccessResult(hasAccess, className, cssClass);
         },
         function rejected(reason) {
+          console.log('document.hasStorageAccess rejected with reason: ', reason);
           updateHasStorageAccessResult(`promise rejected: ${reason}`, className, cssClass);
         }
       );
